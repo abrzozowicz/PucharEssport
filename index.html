@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranking Essport LIVE (Dynamic)</title>
+    <title>Ranking Essport LIVE</title>
     <style>
         :root {
             --bg-color: #050505;
@@ -19,54 +19,93 @@
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; justify-content: center;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
-        .main-wrapper { width: 100%; max-width: 1400px; padding: 10px; }
+        .main-wrapper { width: 100%; max-width: 1200px; margin: 0 auto; padding: 15px; box-sizing: border-box; }
 
         h1 {
-            text-align: left; text-transform: uppercase; letter-spacing: 3px;
-            border-left: 5px solid var(--accent-red); padding-left: 15px;
-            margin-bottom: 25px; font-size: 1.6rem;
+            text-align: left; text-transform: uppercase; letter-spacing: 2px;
+            border-left: 4px solid var(--accent-red); padding-left: 15px;
+            margin: 20px 0; font-size: 1.4rem; color: #fff;
         }
 
-        .ranking-table-container { width: 100%; overflow-x: auto; border: 1px solid var(--border-color); }
+        .ranking-table-container { 
+            width: 100%; 
+            border: 1px solid var(--border-color); 
+            background: #0a0a0a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
 
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-        /* Style nagłówków */
-        .group-header { background-color: #000; font-size: 0.65rem; color: #666; text-transform: uppercase; letter-spacing: 2px; }
-        .group-header th { padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+        /* Nagłówki */
+        .group-header { background-color: #000; font-size: 0.6rem; color: #555; text-transform: uppercase; }
+        .group-header th { padding: 5px 0; border-bottom: 1px solid var(--border-color); }
         
-        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.75rem; color: var(--accent-red); }
+        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.7rem; color: var(--accent-red); }
         .header-row th { padding: 12px 5px; border-bottom: 2px solid var(--accent-red); }
 
-        /* Wiersze */
-        .player-row { border-bottom: 1px solid var(--border-color); transition: 0.2s; }
+        /* Wiersze zawodników */
+        .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); }
         .player-row:nth-child(even) { background-color: var(--row-alt); }
-        .player-row:hover { background-color: rgba(255, 255, 255, 0.07) !important; }
+        .player-row:hover { background-color: rgba(255, 255, 255, 0.05); }
 
-        .top24 { border-left: 4px solid var(--accent-green); background-color: rgba(0, 255, 65, 0.03); }
+        /* TOP 24 - wyróżnienie */
+        .top24 { border-left: 3px solid var(--accent-green); }
         .top24 .player-name { color: var(--accent-green); }
 
-        td { padding: 12px 5px; text-align: center; font-size: 0.95rem; white-space: nowrap; }
-        .player-name { text-align: left !important; padding-left: 15px !important; font-weight: 600; min-width: 200px; }
+        td { padding: 14px 5px; text-align: center; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; }
+        
+        .player-name { 
+            text-align: left !important; 
+            padding-left: 10px !important; 
+            font-weight: 600; 
+            white-space: nowrap;
+        }
 
-        .total-score { font-weight: 900; color: var(--accent-red); font-size: 1.2rem; background-color: rgba(255, 0, 0, 0.05); }
-        .divider { border-left: 1px solid var(--border-color); }
-        .thick-divider { border-left: 2px solid var(--accent-red); }
+        .total-score { 
+            font-weight: 800; 
+            color: var(--accent-red); 
+            font-size: 1.1rem; 
+            background-color: rgba(255, 0, 0, 0.03); 
+        }
 
-        /* Detale Mobile */
-        .details-row { display: none; background-color: #080808; }
-        .details-container { padding: 15px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-        .detail-card { background-color: #111; padding: 10px; border: 1px solid #222; border-radius: 4px; min-width: 100px; }
-        .detail-card span { display: block; font-size: 0.6rem; color: #555; text-transform: uppercase; }
+        /* Sekcja Detali (Rozwijana) */
+        .details-row { display: none; background-color: #0d0d0d; }
+        .details-row.open { display: table-row; }
+        
+        .details-container { 
+            padding: 15px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+            gap: 10px; 
+        }
 
-        @media (max-width: 1023px) {
-            .desktop-only { display: none; }
-            .active-row + .details-row { display: table-row; }
-            .active-row { background-color: #151515 !important; }
+        .detail-card { 
+            background: #161616; 
+            padding: 10px; 
+            border-radius: 4px; 
+            border: 1px solid #252525;
+            text-align: center;
+        }
+        .detail-card span { display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+        .detail-card b { font-size: 0.85rem; color: #ddd; }
+        .detail-card i { display: block; font-size: 0.7rem; color: var(--accent-green); font-style: normal; margin-top: 2px;}
+
+        /* Szerokości kolumn */
+        .col-lp { width: 40px; }
+        .col-name { width: auto; }
+        .col-total { width: 80px; }
+        .col-turniej { width: 60px; }
+
+        /* RESPONSYWNOŚĆ */
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            h1 { font-size: 1.1rem; }
+            .player-name { font-size: 0.85rem; }
+            .total-score { font-size: 1rem; width: 70px; }
         }
     </style>
 </head>
@@ -78,7 +117,7 @@
         <table id="dynamicTable">
             <thead id="tableHead"></thead>
             <tbody id="tableBody">
-                <tr><td style="padding:50px; text-align:center;">ŁADOWANIE_SYSTEMU...</td></tr>
+                <tr><td colspan="3" style="padding:50px;">INICJACJA_SYSTEMU...</td></tr>
             </tbody>
         </table>
     </div>
@@ -94,70 +133,93 @@
             const rows = text.split('\n').filter(line => line.trim() !== '');
             if (rows.length < 2) return;
 
-            // Analiza struktury: ile jest kolumn z turniejami?
-            // Zakładamy: [0] LP, [1] Nazwisko ... [Ostatnia] SUMA
-            // Turnieje to wszystko pomiędzy Nazwiskiem a Sumą, podzielone na pół (Miejsca i Punkty)
-            const firstRowCols = rows[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            const totalCols = firstRowCols.length;
-            const tournamentCount = (totalCols - 3) / 2; // -1 (LP), -1 (Nazwa), -1 (Suma)
+            // Analiza struktury kolumn
+            const headerCols = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const totalCols = headerCols.length;
+            const tournamentCount = (totalCols - 3) / 2;
 
-            // 1. GENEROWANIE NAGŁÓWKA
+            // 1. BUDOWA NAGŁÓWKA
             let headHtml = `
-                <tr class="group-header">
+                <tr class="group-header desktop-only">
                     <th colspan="2"></th>
                     <th colspan="${tournamentCount}" style="border-left: 1px solid #222;">MIEJSCA</th>
                     <th colspan="${tournamentCount}" style="border-left: 1px solid #222;">PUNKTY</th>
-                    <th style="border-left: 2px solid var(--accent-red);"></th>
+                    <th></th>
                 </tr>
                 <tr class="header-row">
-                    <th style="width:50px">POZ</th>
-                    <th style="text-align:left; padding-left:15px;">ZAWODNIK</th>`;
+                    <th class="col-lp">#</th>
+                    <th class="col-name" style="text-align:left; padding-left:10px;">ZAWODNIK</th>`;
             
-            for(let i=1; i<=tournamentCount; i++) headHtml += `<th class="desktop-only divider">T${i}</th>`;
-            for(let i=1; i<=tournamentCount; i++) headHtml += `<th class="desktop-only divider">P${i}</th>`;
+            // Turnieje widoczne tylko na Desktop
+            for(let i=1; i<=tournamentCount; i++) headHtml += `<th class="desktop-only col-turniej">T${i}</th>`;
+            for(let i=1; i<=tournamentCount; i++) headHtml += `<th class="desktop-only col-turniej">P${i}</th>`;
             
-            headHtml += `<th class="total-score thick-divider">SUMA</th></tr>`;
+            headHtml += `<th class="col-total">SUMA</th></tr>`;
             document.getElementById('tableHead').innerHTML = headHtml;
 
-            // 2. GENEROWANIE WIERSZY
+            // 2. BUDOWA WIERSZY
             let bodyHtml = '';
             for (let i = 1; i < rows.length; i++) {
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
                 if (!cols[1]) continue;
 
                 const isTop24 = i <= 24 ? 'top24' : '';
+                const lp = cols[0] || i;
+                const name = cols[1];
+                const total = cols[totalCols - 1];
+
+                // Wiersz główny
+                bodyHtml += `
+                <tr class="player-row ${isTop24}" onclick="toggleDetails(${i})">
+                    <td style="color:#555;">${lp}</td>
+                    <td class="player-name">${name}</td>`;
+
+                // Miejsca i Punkty (Desktop Only)
+                for(let j=2; j < 2 + (tournamentCount * 2); j++) {
+                    bodyHtml += `<td class="desktop-only" style="color:${j < 2+tournamentCount ? '#ccc' : '#777'}">${cols[j] || '-'}</td>`;
+                }
+
+                bodyHtml += `<td class="total-score">${total}</td></tr>`;
+
+                // Wiersz szczegółów (Mobile & Desktop Accordion)
+                bodyHtml += `
+                <tr class="details-row" id="details-${i}">
+                    <td colspan="${totalCols}">
+                        <div class="details-container">`;
                 
-                bodyHtml += `<tr class="player-row ${isTop24}" onclick="if(window.innerWidth < 1024) this.classList.toggle('active-row')">
-                    <td style="color:#666; font-weight:bold;">${cols[0] || i}</td>
-                    <td class="player-name">${cols[1]}</td>`;
-
-                // Miejsca (T)
-                for(let j=2; j < 2 + tournamentCount; j++) {
-                    bodyHtml += `<td class="desktop-only divider">${cols[j] || '-'}</td>`;
+                for(let j=0; j < tournamentCount; j++) {
+                    const miejsce = cols[j+2] || '-';
+                    const punkty = cols[j+2+tournamentCount] || 0;
+                    bodyHtml += `
+                        <div class="detail-card">
+                            <span>Turniej ${j+1}</span>
+                            <b>M-ce: ${miejsce}</b>
+                            <i>+${punkty} PKT</i>
+                        </div>`;
                 }
-                // Punkty (P)
-                for(let j=2 + tournamentCount; j < 2 + (tournamentCount * 2); j++) {
-                    bodyHtml += `<td class="desktop-only divider" style="color:#888">${cols[j] || 0}</td>`;
-                }
-
-                // Suma (Ostatnia kolumna)
-                bodyHtml += `<td class="total-score thick-divider">${cols[totalCols-1] || 0}</td></tr>`;
-
-                // Detale Mobile (Accordion)
-                bodyHtml += `<tr class="details-row"><td colspan="${totalCols}">
-                    <div class="details-container">`;
-                for(let j=1; j<=tournamentCount; j++) {
-                    bodyHtml += `<div class="detail-card"><span>T${j}</span><b>${cols[j+1] || '-'} / ${cols[j+1+tournamentCount] || 0}p</b></div>`;
-                }
+                
                 bodyHtml += `</div></td></tr>`;
             }
             document.getElementById('tableBody').innerHTML = bodyHtml;
 
-        } catch (e) { console.error("Błąd systemu:", e); }
+        } catch (e) { console.error("Błąd ładowania:", e); }
+    }
+
+    // Funkcja do otwierania detali
+    function toggleDetails(id) {
+        const row = document.getElementById(`details-${id}`);
+        const allDetails = document.querySelectorAll('.details-row');
+        
+        // Zamyka inne przed otwarciem nowego (opcjonalnie)
+        allDetails.forEach(d => {
+            if(d.id !== `details-${id}`) d.classList.remove('open');
+        });
+
+        row.classList.toggle('open');
     }
 
     fetchRanking();
-    setInterval(fetchRanking, 45000);
+    setInterval(fetchRanking, 60000); // Odświeżanie co minutę
 </script>
 
 </body>
