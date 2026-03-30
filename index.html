@@ -2,8 +2,15 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ranking Essport LIVE</title>
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="RANKING_ESSPORT_LIVE - Oficjalne Wyniki">
+    <meta property="og:description" content="Sprawdź aktualną klasyfikację sezonu. Kliknij, aby zobaczyć szczegóły każdego zawodnika!">
+    <meta property="og:image" content="LINK_DO_TWOJEGO_PLAKATU.jpg"> <meta property="og:url" content="https://abrzozowicz.github.io/F/">
+    <meta name="twitter:card" content="summary_large_image">
+
     <style>
         :root {
             --bg-color: #050505;
@@ -20,14 +27,15 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .main-wrapper { width: 100%; max-width: 1200px; margin: 0 auto; padding: 15px; box-sizing: border-box; }
+        .main-wrapper { width: 100%; max-width: 1000px; margin: 0 auto; padding: 10px; box-sizing: border-box; }
 
         h1 {
             text-align: left; text-transform: uppercase; letter-spacing: 2px;
             border-left: 4px solid var(--accent-red); padding-left: 15px;
-            margin: 20px 0; font-size: 1.4rem; color: #fff;
+            margin: 15px 0 25px 0; font-size: 1.2rem; color: #fff;
         }
 
         .ranking-table-container { 
@@ -38,74 +46,69 @@
             overflow: hidden;
         }
 
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; table-layout: auto; }
 
         /* Nagłówki */
-        .group-header { background-color: #000; font-size: 0.6rem; color: #555; text-transform: uppercase; }
-        .group-header th { padding: 5px 0; border-bottom: 1px solid var(--border-color); }
-        
-        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.7rem; color: var(--accent-red); }
-        .header-row th { padding: 12px 5px; border-bottom: 2px solid var(--accent-red); }
+        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.75rem; color: var(--accent-red); }
+        .header-row th { padding: 15px 10px; border-bottom: 2px solid var(--accent-red); font-weight: 900; }
 
-        /* Wiersze zawodników */
-        .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        /* Wiersze */
+        .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
         .player-row:nth-child(even) { background-color: var(--row-alt); }
-        .player-row:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .player-row:active { background-color: #1a1a1a; }
 
-        /* TOP 24 - wyróżnienie */
-        .top24 { border-left: 3px solid var(--accent-green); }
-        .top24 .player-name { color: var(--accent-green); }
-
-        td { padding: 14px 5px; text-align: center; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; }
+        .col-lp { width: 40px; color: #555; text-align: center; font-weight: bold; font-size: 0.8rem; }
         
         .player-name { 
             text-align: left !important; 
-            padding-left: 10px !important; 
+            padding: 15px 10px !important; 
             font-weight: 600; 
-            white-space: nowrap;
+            color: #fff;
+            font-size: 0.95rem;
+            line-height: 1.2;
         }
 
         .total-score { 
-            font-weight: 800; 
+            width: 70px;
+            font-weight: 900; 
             color: var(--accent-red); 
-            font-size: 1.1rem; 
-            background-color: rgba(255, 0, 0, 0.03); 
+            font-size: 1.2rem; 
+            text-align: center !important;
+            padding-right: 10px !important;
         }
 
         /* Sekcja Detali (Rozwijana) */
-        .details-row { display: none; background-color: #0d0d0d; }
+        .details-row { display: none; background-color: #080808; border-bottom: 1px solid var(--border-color); }
         .details-row.open { display: table-row; }
         
         .details-container { 
             padding: 15px; 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+            grid-template-columns: repeat(2, 1fr); 
             gap: 10px; 
         }
 
         .detail-card { 
-            background: #161616; 
+            background: #121212; 
             padding: 10px; 
             border-radius: 4px; 
-            border: 1px solid #252525;
+            border: 1px solid #222;
             text-align: center;
         }
         .detail-card span { display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; margin-bottom: 4px; }
-        .detail-card b { font-size: 0.85rem; color: #ddd; }
-        .detail-card i { display: block; font-size: 0.7rem; color: var(--accent-green); font-style: normal; margin-top: 2px;}
+        .detail-card b { font-size: 0.85rem; color: #eee; display: block; }
+        .detail-card i { display: block; font-size: 0.75rem; color: var(--accent-green); font-style: normal; margin-top: 4px; font-weight: bold; }
 
-        /* Szerokości kolumn */
-        .col-lp { width: 40px; }
-        .col-name { width: auto; }
-        .col-total { width: 80px; }
-        .col-turniej { width: 60px; }
+        .top24 { border-left: 4px solid var(--accent-green); }
+        .top24 .player-name { color: var(--accent-green); }
 
-        /* RESPONSYWNOŚĆ */
-        @media (max-width: 768px) {
-            .desktop-only { display: none !important; }
-            h1 { font-size: 1.1rem; }
-            .player-name { font-size: 0.85rem; }
-            .total-score { font-size: 1rem; width: 70px; }
+        /* Ukrywanie kolumn na mobile, które są w CSV ale nie w głównym widoku */
+        .desktop-only { display: none; }
+
+        @media (min-width: 800px) {
+            .desktop-only { display: table-cell; }
+            .details-container { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            h1 { font-size: 1.6rem; }
         }
     </style>
 </head>
@@ -115,9 +118,15 @@
     <h1>RANKING_ESSPORT_LIVE</h1>
     <div class="ranking-table-container">
         <table id="dynamicTable">
-            <thead id="tableHead"></thead>
+            <thead>
+                <tr class="header-row">
+                    <th class="col-lp">#</th>
+                    <th style="text-align:left; padding-left:10px;">ZAWODNIK</th>
+                    <th class="total-score">SUMA</th>
+                </tr>
+            </thead>
             <tbody id="tableBody">
-                <tr><td colspan="3" style="padding:50px;">INICJACJA_SYSTEMU...</td></tr>
+                <tr><td colspan="3" style="padding:50px; text-align:center; color:#444;">ŁADOWANIE_DANYCH...</td></tr>
             </tbody>
         </table>
     </div>
@@ -133,31 +142,10 @@
             const rows = text.split('\n').filter(line => line.trim() !== '');
             if (rows.length < 2) return;
 
-            // Analiza struktury kolumn
             const headerCols = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            const totalCols = headerCols.length;
-            const tournamentCount = (totalCols - 3) / 2;
+            const totalColsCount = headerCols.length;
+            const tournamentCount = (totalColsCount - 3) / 2;
 
-            // 1. BUDOWA NAGŁÓWKA
-            let headHtml = `
-                <tr class="group-header desktop-only">
-                    <th colspan="2"></th>
-                    <th colspan="${tournamentCount}" style="border-left: 1px solid #222;">MIEJSCA</th>
-                    <th colspan="${tournamentCount}" style="border-left: 1px solid #222;">PUNKTY</th>
-                    <th></th>
-                </tr>
-                <tr class="header-row">
-                    <th class="col-lp">#</th>
-                    <th class="col-name" style="text-align:left; padding-left:10px;">ZAWODNIK</th>`;
-            
-            // Turnieje widoczne tylko na Desktop
-            for(let i=1; i<=tournamentCount; i++) headHtml += `<th class="desktop-only col-turniej">T${i}</th>`;
-            for(let i=1; i<=tournamentCount; i++) headHtml += `<th class="desktop-only col-turniej">P${i}</th>`;
-            
-            headHtml += `<th class="col-total">SUMA</th></tr>`;
-            document.getElementById('tableHead').innerHTML = headHtml;
-
-            // 2. BUDOWA WIERSZY
             let bodyHtml = '';
             for (let i = 1; i < rows.length; i++) {
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
@@ -166,35 +154,28 @@
                 const isTop24 = i <= 24 ? 'top24' : '';
                 const lp = cols[0] || i;
                 const name = cols[1];
-                const total = cols[totalCols - 1];
+                const totalScore = cols[totalColsCount - 1];
 
-                // Wiersz główny
+                // Wiersz główny (LP | NAZWISKO | SUMA)
                 bodyHtml += `
                 <tr class="player-row ${isTop24}" onclick="toggleDetails(${i})">
-                    <td style="color:#555;">${lp}</td>
-                    <td class="player-name">${name}</td>`;
-
-                // Miejsca i Punkty (Desktop Only)
-                for(let j=2; j < 2 + (tournamentCount * 2); j++) {
-                    bodyHtml += `<td class="desktop-only" style="color:${j < 2+tournamentCount ? '#ccc' : '#777'}">${cols[j] || '-'}</td>`;
-                }
-
-                bodyHtml += `<td class="total-score">${total}</td></tr>`;
-
-                // Wiersz szczegółów (Mobile & Desktop Accordion)
-                bodyHtml += `
+                    <td class="col-lp">${lp}</td>
+                    <td class="player-name">${name}</td>
+                    <td class="total-score">${totalScore}</td>
+                </tr>
                 <tr class="details-row" id="details-${i}">
-                    <td colspan="${totalCols}">
+                    <td colspan="3">
                         <div class="details-container">`;
                 
-                for(let j=0; j < tournamentCount; j++) {
-                    const miejsce = cols[j+2] || '-';
-                    const punkty = cols[j+2+tournamentCount] || 0;
+                // Generowanie kart turniejowych wewnątrz rozwijanego wiersza
+                for(let j = 0; j < tournamentCount; j++) {
+                    const mce = cols[j+2] || '-';
+                    const pkt = cols[j+2+tournamentCount] || 0;
                     bodyHtml += `
                         <div class="detail-card">
                             <span>Turniej ${j+1}</span>
-                            <b>M-ce: ${miejsce}</b>
-                            <i>+${punkty} PKT</i>
+                            <b>M-ce: ${mce}</b>
+                            <i>+${pkt} PKT</i>
                         </div>`;
                 }
                 
@@ -202,24 +183,27 @@
             }
             document.getElementById('tableBody').innerHTML = bodyHtml;
 
-        } catch (e) { console.error("Błąd ładowania:", e); }
+        } catch (e) { 
+            console.error("Błąd ładowania:", e); 
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="3" style="padding:20px;">BŁĄD_SYNCHRONIZACJI</td></tr>';
+        }
     }
 
-    // Funkcja do otwierania detali
     function toggleDetails(id) {
-        const row = document.getElementById(`details-${id}`);
-        const allDetails = document.querySelectorAll('.details-row');
+        const target = document.getElementById(`details-${id}`);
+        const isOpen = target.classList.contains('open');
         
-        // Zamyka inne przed otwarciem nowego (opcjonalnie)
-        allDetails.forEach(d => {
-            if(d.id !== `details-${id}`) d.classList.remove('open');
-        });
-
-        row.classList.toggle('open');
+        // Zamykamy wszystkie inne, żeby był porządek
+        document.querySelectorAll('.details-row').forEach(row => row.classList.remove('open'));
+        
+        // Jeśli nie był otwarty, to otwieramy
+        if (!isOpen) {
+            target.classList.add('open');
+        }
     }
 
     fetchRanking();
-    setInterval(fetchRanking, 60000); // Odświeżanie co minutę
+    setInterval(fetchRanking, 60000); // Auto-odświeżanie co 60 sek
 </script>
 
 </body>
