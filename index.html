@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Essport LIVE</title>
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --glass-bg: rgba(0, 10, 20, 0.94);
+            --gold: #ffd700;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #000a14 url('Gemini_Generated_Image_lre4b0lre4b0lre4.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            color: white; overflow: hidden;
+        }
+
+        .main-wrapper {
+            width: 98%; max-width: 1400px; height: 92vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 20px;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+        }
+
+        .header-section { padding: 15px; text-align: center; border-bottom: 2px solid var(--neon-blue); }
+        h1 { margin: 0; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); font-size: 1.8em; }
+
+        .table-container { flex-grow: 1; overflow-y: auto; padding: 0 15px; }
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        thead { position: sticky; top: 0; background: #000a14; z-index: 10; }
+        th { padding: 12px 2px; color: var(--neon-blue); border-bottom: 2px solid var(--neon-blue); text-transform: uppercase; }
+        td { padding: 8px 2px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        .player-name { text-align: left; font-weight: bold; min-width: 180px; color: #fff; padding-left: 15px; }
+        .total-score { font-weight: bold; color: var(--neon-blue); background: rgba(0, 242, 255, 0.15); font-size: 14px; }
+        .rank-col { width: 45px; font-weight: bold; color: #888; }
+        .divider { border-left: 1px solid rgba(0, 242, 255, 0.2); }
+        
+        .footer-info { font-size: 10px; color: #555; padding: 8px 20px; text-align: right; background: rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="header-section"><h1>Ranking Essport - Live Sync</h1></div>
+    <div class="table-container">
+        <table id="rankingTable">
+            <thead>
+                <tr>
+                    <th rowspan="2">Poz.</th><th rowspan="2" class="player-name">Zawodnik</th>
+                    <th colspan="5">Miejsce</th><th colspan="5" class="divider">Punkty</th>
+                    <th rowspan="2" class="divider">SUMA</th>
+                </tr>
+                <tr>
+                    <th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th>
+                    <th class="divider">T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="13" style="padding:50px;">Pobieranie danych z arkusza...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer-info" id="status">Inicjalizacja...</div>
+</div>
+
+<script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTTOj5_aDejIsMY9W1lXRgb2xFEwA-n7OAYuqZz_2zdLTr0F9n6IgixQAHvDp-PUH7zadqxDA7MEhdi/pub?gid=0&single=true&output=csv';
+
+    async function fetchRanking() {
+        try {
+            // Dodajemy znacznik czasu, aby zawsze pobierać najświeższe dane
+            const response = await fetch(csvUrl + '&cache=' + new Date().getTime());
+            const text = await response.text();
+            
+            // Dzielenie na linie i usuwanie ewentualnych pustych linii na końcu
+            const rows = text.split('\n').filter(line => line.trim() !== '');
+            
+            let html = '';
+            let count = 0;
+
+            // Start od i=1, aby pominąć nagłówek "Lp., Zawodnik..."
+            for (let i = 1; i < rows.length; i++) {
+                // Rozbijanie linii CSV i usuwanie cudzysłowów
+                const cols = rows[i].split(',').map(cell => cell.replace(/^"(.*)"$/, '$1').trim());
+                
+                // Sprawdzamy czy wiersz ma imię zawodnika (kolumna index 1)
+                if (cols[1] && cols[1] !== "") {
+                    count++;
+                    html += `
+                    <tr>
+                        <td class="rank-col">${cols[0] || count}</td>
+                        <td class="player-name">${cols[1]}</td>
+                        <td>${cols[2] || 0}</td><td>${cols[3] || 0}</td><td>${cols[4] || 0}</td><td>${cols[5] || 0}</td><td>${cols[6] || 0}</td>
+                        <td class="divider">${cols[7] || 0}</td><td>${cols[8] || 0}</td><td>${cols[9] || 0}</td><td>${cols[10] || 0}</td><td>${cols[11] || 0}</td>
+                        <td class="total-score divider">${cols[12] || 0}</td>
+                    </tr>`;
+                }
+            }
+
+            document.getElementById('tableBody').innerHTML = html;
+            document.getElementById('status').innerText = 'Zsynchronizowano: ' + count + ' graczy | ' + new Date().toLocaleTimeString();
+
+        } catch (error) {
+            console.error('Błąd:', error);
+            document.getElementById('status').innerText = 'Błąd synchronizacji. Sprawdź połączenie.';
+        }
+    }
+
+    // Załaduj przy starcie
+    fetchRanking();
+
+    // Automatyczne odświeżanie co 30 sekund
+    setInterval(fetchRanking, 30000);
+</script>
+
+</body>
+</html>
