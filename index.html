@@ -7,9 +7,11 @@
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="RANKING_ESSPORT_LIVE - Oficjalne Wyniki">
-    <meta property="og:description" content="Sprawdź aktualną klasyfikację sezonu. Kliknij, aby zobaczyć szczegóły każdego zawodnika!">
-    <meta property="og:image" content="LINK_DO_TWOJEGO_PLAKATU.jpg"> <meta property="og:url" content="https://abrzozowicz.github.io/F/">
+    <meta property="og:description" content="Sprawdź aktualną klasyfikację sezonu. Kliknij w zawodnika, aby zobaczyć szczegóły jego występów!">
+    <meta property="og:image" content="https://zapodaj.net/images/9506974e638f8.jpg">
+    <meta property="og:url" content="https://abrzozowicz.github.io/PucharEssport/">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://zapodaj.net/images/9506974e638f8.jpg">
 
     <style>
         :root {
@@ -102,11 +104,7 @@
         .top24 { border-left: 4px solid var(--accent-green); }
         .top24 .player-name { color: var(--accent-green); }
 
-        /* Ukrywanie kolumn na mobile, które są w CSV ale nie w głównym widoku */
-        .desktop-only { display: none; }
-
         @media (min-width: 800px) {
-            .desktop-only { display: table-cell; }
             .details-container { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
             h1 { font-size: 1.6rem; }
         }
@@ -156,7 +154,6 @@
                 const name = cols[1];
                 const totalScore = cols[totalColsCount - 1];
 
-                // Wiersz główny (LP | NAZWISKO | SUMA)
                 bodyHtml += `
                 <tr class="player-row ${isTop24}" onclick="toggleDetails(${i})">
                     <td class="col-lp">${lp}</td>
@@ -167,7 +164,6 @@
                     <td colspan="3">
                         <div class="details-container">`;
                 
-                // Generowanie kart turniejowych wewnątrz rozwijanego wiersza
                 for(let j = 0; j < tournamentCount; j++) {
                     const mce = cols[j+2] || '-';
                     const pkt = cols[j+2+tournamentCount] || 0;
@@ -192,18 +188,14 @@
     function toggleDetails(id) {
         const target = document.getElementById(`details-${id}`);
         const isOpen = target.classList.contains('open');
-        
-        // Zamykamy wszystkie inne, żeby był porządek
         document.querySelectorAll('.details-row').forEach(row => row.classList.remove('open'));
-        
-        // Jeśli nie był otwarty, to otwieramy
         if (!isOpen) {
             target.classList.add('open');
         }
     }
 
     fetchRanking();
-    setInterval(fetchRanking, 60000); // Auto-odświeżanie co 60 sek
+    setInterval(fetchRanking, 60000);
 </script>
 
 </body>
