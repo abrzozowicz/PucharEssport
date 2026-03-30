@@ -3,82 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranking Essport LIVE</title>
+    <title>Essport - Daft Punk Edition</title>
     <style>
         :root {
-            --neon-blue: #00f2ff;
-            --glass-bg: rgba(0, 10, 20, 0.96);
-            --gold: #ffd700;
-            --top24-bg: rgba(255, 215, 0, 0.07);
+            --bg-black: #050505;
+            --daft-red: #ff0000;
+            --daft-green: #00ff41; /* Klasyczny kolor Matrixa/Daft Punk */
+            --pure-white: #ffffff;
+            --glass-red: rgba(255, 0, 0, 0.1);
         }
 
         body {
             margin: 0; padding: 0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: #000a14 url('Gemini_Generated_Image_lre4b0lre4b0lre4.jpg') no-repeat center center fixed;
-            background-size: cover;
+            font-family: 'Courier New', Courier, monospace; /* Bardziej techniczna czcionka */
+            background: var(--bg-black);
+            background-image: 
+                linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90px, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 100% 4px, 4px 100%; /* Delikatne poziome linie starego monitora */
             height: 100vh;
             display: flex; justify-content: center; align-items: center;
-            color: white; overflow: hidden;
+            color: var(--pure-white);
+            overflow: hidden;
         }
 
         .main-wrapper {
             width: 98%; max-width: 1500px; height: 94vh;
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(0, 242, 255, 0.4);
-            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 4px solid var(--daft-red);
+            border-radius: 5px; /* Bardziej kanciaste, retro-futurystyczne */
             display: flex; flex-direction: column;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 1);
+            box-shadow: 0 0 30px var(--daft-red), inset 0 0 15px var(--daft-red);
         }
 
-        .header-section { padding: 20px; text-align: center; border-bottom: 3px solid var(--neon-blue); }
-        h1 { margin: 0; text-transform: uppercase; letter-spacing: 7px; color: var(--neon-blue); text-shadow: 0 0 20px var(--neon-blue); font-size: 2.5em; }
+        .header-section { 
+            padding: 25px; 
+            text-align: center; 
+            border-bottom: 4px solid var(--daft-red);
+            background: var(--daft-red);
+        }
+        
+        h1 { 
+            margin: 0; 
+            text-transform: uppercase; 
+            letter-spacing: 12px; 
+            color: var(--bg-black); 
+            font-weight: 900;
+            font-size: 3em;
+            text-shadow: none;
+        }
 
-        .table-container { flex-grow: 1; overflow-y: auto; padding: 0 20px; }
-        .table-container::-webkit-scrollbar { width: 10px; }
-        .table-container::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 5px; }
+        .table-container { flex-grow: 1; overflow-y: auto; padding: 0 10px; }
+        .table-container::-webkit-scrollbar { width: 12px; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--daft-red); }
 
-        table { width: 100%; border-collapse: collapse; font-size: 16px; /* WIĘKSZA CZCIONKA OGÓLNA */ }
-        thead { position: sticky; top: 0; background: #000a14; z-index: 10; }
+        table { width: 100%; border-collapse: collapse; font-size: 18px; }
+        thead { position: sticky; top: 0; background: var(--bg-black); z-index: 10; }
         
         th { 
-            padding: 18px 5px; 
-            color: var(--neon-blue); 
-            border-bottom: 3px solid var(--neon-blue); 
+            padding: 20px 5px; 
+            color: var(--daft-red); 
+            border-bottom: 2px solid var(--daft-red); 
             text-transform: uppercase; 
-            font-size: 13px;
-            letter-spacing: 1px;
+            font-size: 14px;
         }
         
-        td { padding: 12px 5px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        td { 
+            padding: 15px 5px; 
+            text-align: center; 
+            border-bottom: 1px solid rgba(255, 0, 0, 0.2); 
+        }
 
-        /* WYRÓŻNIENIE TOP 24 */
-        .top24 { background: var(--top24-bg); }
-        .top24 .player-name { color: var(--gold); text-shadow: 0 0 5px rgba(255,215,0,0.3); }
+        /* WYRÓŻNIENIE TOP 24 - ZIELONY STYL MATRYCY */
+        .top24 { background: rgba(0, 255, 65, 0.05); }
+        .top24 .player-name { color: var(--daft-green); text-shadow: 0 0 8px var(--daft-green); }
+        .top24 .rank-col { color: var(--daft-green); }
 
-        .player-name { text-align: left; font-weight: bold; min-width: 220px; color: #fff; padding-left: 20px; font-size: 18px; }
-        .total-score { font-weight: bold; color: var(--neon-blue); background: rgba(0, 242, 255, 0.2); font-size: 20px; border-radius: 6px; }
-        .rank-col { width: 60px; font-weight: 800; color: #aaa; font-size: 18px; }
+        .player-name { 
+            text-align: left; 
+            font-weight: bold; 
+            min-width: 250px; 
+            color: var(--pure-white); 
+            padding-left: 25px; 
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .total-score { 
+            font-weight: 900; 
+            color: var(--bg-black); 
+            background: var(--daft-red); 
+            font-size: 24px; 
+            box-shadow: 0 0 10px var(--daft-red);
+        }
+
+        .rank-col { width: 70px; font-weight: 900; color: var(--daft-red); font-size: 22px; }
         
-        /* Podium Icons */
-        tr:nth-child(1) .rank-col { color: var(--gold); font-size: 24px; }
-        
-        .divider { border-left: 2px solid rgba(0, 242, 255, 0.2); }
-        .status-bar { font-size: 12px; color: #777; padding: 10px 25px; text-align: right; background: rgba(0,0,0,0.3); border-radius: 0 0 25px 25px; }
+        .divider { border-left: 2px solid var(--daft-red); }
+
+        .status-bar { 
+            font-size: 14px; 
+            color: var(--daft-red); 
+            padding: 10px 25px; 
+            text-align: left; 
+            background: #000;
+            border-top: 2px solid var(--daft-red);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Animacja migania kursora */
+        .status-bar::after {
+            content: '_';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
     </style>
 </head>
 <body>
 
 <div class="main-wrapper">
-    <div class="header-section"><h1>Ranking Essport LIVE</h1></div>
+    <div class="header-section"><h1>RANKING ESSPORT</h1></div>
     <div class="table-container">
         <table id="rankingTable">
             <thead>
                 <tr>
-                    <th rowspan="2">Poz.</th><th rowspan="2" class="player-name">Zawodnik</th>
-                    <th colspan="5">Miejsce w Turniejach</th><th colspan="5" class="divider">Punkty</th>
-                    <th rowspan="2" class="divider">SUMA</th>
+                    <th rowspan="2">POS</th><th rowspan="2" class="player-name">PLAYER_NAME</th>
+                    <th colspan="5">STAGES_RANK</th><th colspan="5" class="divider">POINTS</th>
+                    <th rowspan="2" class="divider">TOTAL</th>
                 </tr>
                 <tr>
                     <th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th>
@@ -86,11 +138,11 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="13" style="padding:100px; font-size: 20px;">Ładowanie zawodników...</td></tr>
+                <tr><td colspan="13" style="padding:100px; color: var(--daft-red);">INITIALIZING_SYSTEM...</td></tr>
             </tbody>
         </table>
     </div>
-    <div class="status-bar" id="status">Synchronizacja...</div>
+    <div class="status-bar" id="status">STATUS: CONNECTING_TO_DATABASE</div>
 </div>
 
 <script>
@@ -107,7 +159,6 @@
                 const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
                 
                 if (cols[1] && cols[1] !== "") {
-                    // Sprawdzamy czy wiersz należy do TOP 24
                     const isTop24 = i <= 24 ? 'class="top24"' : '';
                     
                     html += `
@@ -121,9 +172,9 @@
                 }
             }
             document.getElementById('tableBody').innerHTML = html;
-            document.getElementById('status').innerText = 'Ostatnia aktualizacja: ' + new Date().toLocaleTimeString();
+            document.getElementById('status').innerText = 'SYSTEM_UPDATE_SUCCESSFUL: ' + new Date().toLocaleTimeString();
         } catch (e) {
-            document.getElementById('status').innerText = 'Błąd połączenia!';
+            document.getElementById('status').innerText = 'ERROR: CONNECTION_FAILED';
         }
     }
 
