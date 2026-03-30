@@ -3,176 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Essport Ranking - Tech Edition</title>
+    <title>Essport - Tech Ranking</title>
     <style>
         :root {
-            --bg-deep: #0a0a0a;
+            --bg: #000000;
+            --row-bg: #0a0a0a;
+            --accent-red: #ff0000;
             --accent-green: #00ff41;
-            --accent-red: #ff003c;
-            --text-white: #e0e0e0;
-            --row-bg: rgba(255, 255, 255, 0.03);
-            --top24-glow: rgba(0, 255, 65, 0.1);
+            --text: #ffffff;
+            --border: #222;
         }
-
-        * { box-sizing: border-box; }
 
         body {
-            margin: 0;
-            background: var(--bg-deep);
-            color: var(--text-white);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex; justify-content: center;
         }
 
-        .main-wrapper {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+        .container { width: 100%; max-width: 1200px; padding: 10px; }
+        
+        h1 { 
+            text-align: left; font-size: 1.5rem; letter-spacing: 2px; 
+            border-left: 4px solid var(--accent-red); padding-left: 15px;
+            margin: 20px 0; text-transform: uppercase;
         }
 
-        h1 {
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: var(--text-white);
-            border-left: 5px solid var(--accent-red);
-            padding-left: 15px;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
+        /* TABELA BAZOWA */
+        .ranking-table { width: 100%; border-collapse: collapse; }
+        
+        .header { 
+            background: #111; color: var(--accent-red); 
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
         }
+        
+        .header th { padding: 15px 5px; border-bottom: 2px solid var(--accent-red); text-align: center; }
+        .header th.align-left { text-align: left; padding-left: 15px; }
 
-        /* Styl Tabeli */
-        .ranking-container {
-            width: 100%;
-            border-collapse: collapse;
-            background: rgba(255, 255, 255, 0.01);
+        .player-row { border-bottom: 1px solid var(--border); transition: 0.2s; cursor: pointer; }
+        .player-row:hover { background: #151515; }
+        
+        /* Wyróżnienie TOP 24 */
+        .top24 { border-left: 3px solid var(--accent-green); background: rgba(0, 255, 65, 0.03); }
+        .top24 .name { color: var(--accent-green); }
+
+        .player-row td { padding: 15px 5px; text-align: center; font-size: 0.9rem; }
+        .name { text-align: left !important; padding-left: 15px !important; font-weight: bold; font-size: 1rem; }
+        .total { font-weight: 900; color: var(--accent-red); font-size: 1.1rem; }
+
+        /* UKRYWANIE KOLUMN NA MOBILE */
+        .col-detail { display: none; }
+
+        /* PANEL DETALI (Tylko Mobile) */
+        .details-row { display: none; background: #050505; }
+        .details-container { 
+            padding: 15px; display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px;
         }
+        .detail-card { background: #111; padding: 8px; border-radius: 4px; border: 1px solid #222; text-align: center; }
+        .detail-card span { display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; }
+        .detail-card b { font-size: 0.8rem; color: #fff; }
 
-        .header-row {
-            display: grid;
-            grid-template-columns: 60px 1fr 100px;
-            background: #151515;
-            padding: 15px;
-            border-bottom: 2px solid var(--accent-red);
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
-
-        /* Wiersz Zawodnika */
-        .player-row {
-            display: grid;
-            grid-template-columns: 60px 1fr 100px;
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            cursor: pointer;
-            transition: background 0.3s;
-            align-items: center;
-        }
-
-        .player-row:hover { background: rgba(255, 255, 255, 0.08); }
-
-        .player-row.top24 {
-            border-left: 3px solid var(--accent-green);
-            background: var(--top24-glow);
-        }
-
-        .rank-num { font-weight: bold; color: #666; }
-        .top24 .rank-num { color: var(--accent-green); }
-
-        .player-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--text-white);
-        }
-
-        .total-score {
-            text-align: right;
-            font-weight: 900;
-            font-size: 1.3rem;
-            color: var(--accent-red);
-        }
-
-        /* Detale (Rozwinięcie) */
-        .details-box {
-            display: none;
-            background: #111;
-            padding: 15px;
-            grid-column: 1 / -1;
-            border-bottom: 2px solid rgba(255, 0, 60, 0.2);
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 10px;
-            text-align: center;
-        }
-
-        .detail-item {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 8px;
-            border-radius: 4px;
-        }
-
-        .detail-label {
-            display: block;
-            font-size: 10px;
-            color: #888;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .detail-val {
-            font-weight: bold;
-            color: var(--text-white);
-        }
-
-        .active-row .details-box { display: block; }
-        .active-row { background: #1a1a1a !important; }
-
-        /* Ukrywanie elementów na desktopie, które są zbędne w gridzie */
-        .desktop-only { display: none; }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsywność dla Desktopu (jeśli chcesz pełną tabelę na szerokim ekranie) */
-        @media (min-width: 900px) {
-            .header-row, .player-row {
-                grid-template-columns: 60px 1fr repeat(10, 50px) 100px;
-            }
-            .desktop-only { display: block; }
-            .details-box { display: none !important; } /* Na dużym ekranie nie ma potrzeby rozwijać */
+        /* RESPONSYWNOŚĆ - DESKTOP */
+        @media (min-width: 1024px) {
+            .col-detail { display: table-cell; }
             .player-row { cursor: default; }
-            .player-row:hover { background: rgba(255, 255, 255, 0.05); }
+            .details-row { display: none !important; }
+            .header th { font-size: 0.8rem; }
         }
+
+        /* Aktywacja detali na Mobile */
+        .is-active + .details-row { display: table-row; }
+        .is-active { background: #1a1a1a !important; }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
-    <h1>RANKING_ESSPORT_2026</h1>
+<div class="container">
+    <h1>RANKING_ESSPORT_LIVE</h1>
     
-    <div id="rankingList">
-        <div class="header-row">
-            <div>POS</div>
-            <div>PLAYER</div>
-            <div class="desktop-only">M1</div><div class="desktop-only">M2</div><div class="desktop-only">M3</div><div class="desktop-only">M4</div><div class="desktop-only">M5</div>
-            <div class="desktop-only">P1</div><div class="desktop-only">P2</div><div class="desktop-only">P3</div><div class="desktop-only">P4</div><div class="desktop-only">P5</div>
-            <div style="text-align:right">TOTAL</div>
-        </div>
-        <div id="tableBody">
-            </div>
-    </div>
+    <table class="ranking-table">
+        <thead>
+            <tr class="header">
+                <th>Poz</th>
+                <th class="align-left">Zawodnik</th>
+                <th class="col-detail">T1</th><th class="col-detail">T2</th><th class="col-detail">T3</th>
+                <th class="col-detail">T4</th><th class="col-detail">T5</th>
+                <th class="col-detail">P1</th><th class="col-detail">P2</th><th class="col-detail">P3</th>
+                <th class="col-detail">P4</th><th class="col-detail">P5</th>
+                <th>Suma</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
 </div>
 
 <script>
@@ -192,41 +115,31 @@
                     const isTop24 = i <= 24 ? 'top24' : '';
                     
                     html += `
-                    <div class="player-wrapper">
-                        <div class="player-row ${isTop24}" onclick="toggleDetails(this)">
-                            <div class="rank-num">${cols[0] || i}</div>
-                            <div class="player-name">${cols[1]}</div>
-                            
-                            <div class="desktop-only">${cols[2] || '-'}</div><div class="desktop-only">${cols[3] || '-'}</div><div class="desktop-only">${cols[4] || '-'}</td>
-                            <div class="desktop-only">${cols[5] || '-'}</div><div class="desktop-only">${cols[6] || '-'}</div>
-                            <div class="desktop-only">${cols[7] || 0}</div><div class="desktop-only">${cols[8] || 0}</div><div class="desktop-only">${cols[9] || 0}</td>
-                            <div class="desktop-only">${cols[10] || 0}</div><div class="desktop-only">${cols[11] || 0}</div>
-
-                            <div class="total-score">${cols[12] || 0}</div>
-                            
-                            <div class="details-box">
-                                <div class="details-grid">
-                                    <div class="detail-item"><span class="detail-label">T1</span><span class="detail-val">${cols[2] || '-'} (${cols[7] || 0}pkt)</span></div>
-                                    <div class="detail-item"><span class="detail-label">T2</span><span class="detail-val">${cols[3] || '-'} (${cols[8] || 0}pkt)</span></div>
-                                    <div class="detail-item"><span class="detail-label">T3</span><span class="detail-val">${cols[4] || '-'} (${cols[9] || 0}pkt)</span></div>
-                                    <div class="detail-item"><span class="detail-label">T4</span><span class="detail-val">${cols[5] || '-'} (${cols[10] || 0}pkt)</span></div>
-                                    <div class="detail-item"><span class="detail-label">T5</span><span class="detail-val">${cols[6] || '-'} (${cols[11] || 0}pkt)</span></div>
-                                </div>
+                    <tr class="player-row ${isTop24}" onclick="this.classList.toggle('is-active')">
+                        <td>${cols[0] || i}</td>
+                        <td class="name">${cols[1]}</td>
+                        <td class="col-detail">${cols[2] || '-'}</td><td class="col-detail">${cols[3] || '-'}</td>
+                        <td class="col-detail">${cols[4] || '-'}</td><td class="col-detail">${cols[5] || '-'}</td>
+                        <td class="col-detail">${cols[6] || '-'}</td><td class="col-detail">${cols[7] || 0}</td>
+                        <td class="col-detail">${cols[8] || 0}</td><td class="col-detail">${cols[9] || 0}</td>
+                        <td class="col-detail">${cols[10] || 0}</td><td class="col-detail">${cols[11] || 0}</td>
+                        <td class="total">${cols[12] || 0}</td>
+                    </tr>
+                    <tr class="details-row">
+                        <td colspan="3">
+                            <div class="details-container">
+                                <div class="detail-card"><span>T1 (M/P)</span><b>${cols[2] || '-'}/${cols[7] || 0}</b></div>
+                                <div class="detail-card"><span>T2 (M/P)</span><b>${cols[3] || '-'}/${cols[8] || 0}</b></div>
+                                <div class="detail-card"><span>T3 (M/P)</span><b>${cols[4] || '-'}/${cols[9] || 0}</b></div>
+                                <div class="detail-card"><span>T4 (M/P)</span><b>${cols[5] || '-'}/${cols[10] || 0}</b></div>
+                                <div class="detail-card"><span>T5 (M/P)</span><b>${cols[6] || '-'}/${cols[11] || 0}</b></div>
                             </div>
-                        </div>
-                    </div>`;
+                        </td>
+                    </tr>`;
                 }
             }
             document.getElementById('tableBody').innerHTML = html;
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    function toggleDetails(row) {
-        if (window.innerWidth < 900) {
-            row.classList.toggle('active-row');
-        }
+        } catch (e) { console.error(e); }
     }
 
     fetchRanking();
