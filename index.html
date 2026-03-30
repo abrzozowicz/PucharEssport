@@ -3,146 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Essport - Daft Punk Edition</title>
+    <title>Essport Ranking - Tech Edition</title>
     <style>
         :root {
-            --bg-black: #050505;
-            --daft-red: #ff0000;
-            --daft-green: #00ff41; /* Klasyczny kolor Matrixa/Daft Punk */
-            --pure-white: #ffffff;
-            --glass-red: rgba(255, 0, 0, 0.1);
+            --bg-deep: #0a0a0a;
+            --accent-green: #00ff41;
+            --accent-red: #ff003c;
+            --text-white: #e0e0e0;
+            --row-bg: rgba(255, 255, 255, 0.03);
+            --top24-glow: rgba(0, 255, 65, 0.1);
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            margin: 0; padding: 0;
-            font-family: 'Courier New', Courier, monospace; /* Bardziej techniczna czcionka */
-            background: var(--bg-black);
-            background-image: 
-                linear-gradient(rgba(255, 0, 0, 0.05) 1px, transparent 1px),
-                linear-gradient(90px, rgba(255, 0, 0, 0.05) 1px, transparent 1px);
-            background-size: 100% 4px, 4px 100%; /* Delikatne poziome linie starego monitora */
-            height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            color: var(--pure-white);
-            overflow: hidden;
+            margin: 0;
+            background: var(--bg-deep);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
         }
 
         .main-wrapper {
-            width: 98%; max-width: 1500px; height: 94vh;
-            background: rgba(0, 0, 0, 0.9);
-            border: 4px solid var(--daft-red);
-            border-radius: 5px; /* Bardziej kanciaste, retro-futurystyczne */
-            display: flex; flex-direction: column;
-            box-shadow: 0 0 30px var(--daft-red), inset 0 0 15px var(--daft-red);
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .header-section { 
-            padding: 25px; 
-            text-align: center; 
-            border-bottom: 4px solid var(--daft-red);
-            background: var(--daft-red);
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--text-white);
+            border-left: 5px solid var(--accent-red);
+            padding-left: 15px;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
         }
-        
-        h1 { 
-            margin: 0; 
-            text-transform: uppercase; 
-            letter-spacing: 12px; 
-            color: var(--bg-black); 
+
+        /* Styl Tabeli */
+        .ranking-container {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .header-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px;
+            background: #151515;
+            padding: 15px;
+            border-bottom: 2px solid var(--accent-red);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* Wiersz Zawodnika */
+        .player-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background 0.3s;
+            align-items: center;
+        }
+
+        .player-row:hover { background: rgba(255, 255, 255, 0.08); }
+
+        .player-row.top24 {
+            border-left: 3px solid var(--accent-green);
+            background: var(--top24-glow);
+        }
+
+        .rank-num { font-weight: bold; color: #666; }
+        .top24 .rank-num { color: var(--accent-green); }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-white);
+        }
+
+        .total-score {
+            text-align: right;
             font-weight: 900;
-            font-size: 3em;
-            text-shadow: none;
+            font-size: 1.3rem;
+            color: var(--accent-red);
         }
 
-        .table-container { flex-grow: 1; overflow-y: auto; padding: 0 10px; }
-        .table-container::-webkit-scrollbar { width: 12px; }
-        .table-container::-webkit-scrollbar-thumb { background: var(--daft-red); }
-
-        table { width: 100%; border-collapse: collapse; font-size: 18px; }
-        thead { position: sticky; top: 0; background: var(--bg-black); z-index: 10; }
-        
-        th { 
-            padding: 20px 5px; 
-            color: var(--daft-red); 
-            border-bottom: 2px solid var(--daft-red); 
-            text-transform: uppercase; 
-            font-size: 14px;
-        }
-        
-        td { 
-            padding: 15px 5px; 
-            text-align: center; 
-            border-bottom: 1px solid rgba(255, 0, 0, 0.2); 
+        /* Detale (Rozwinięcie) */
+        .details-box {
+            display: none;
+            background: #111;
+            padding: 15px;
+            grid-column: 1 / -1;
+            border-bottom: 2px solid rgba(255, 0, 60, 0.2);
+            animation: slideDown 0.3s ease-out;
         }
 
-        /* WYRÓŻNIENIE TOP 24 - ZIELONY STYL MATRYCY */
-        .top24 { background: rgba(0, 255, 65, 0.05); }
-        .top24 .player-name { color: var(--daft-green); text-shadow: 0 0 8px var(--daft-green); }
-        .top24 .rank-col { color: var(--daft-green); }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            text-align: center;
+        }
 
-        .player-name { 
-            text-align: left; 
-            font-weight: bold; 
-            min-width: 250px; 
-            color: var(--pure-white); 
-            padding-left: 25px; 
-            font-size: 20px;
+        .detail-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 4px;
             text-transform: uppercase;
         }
 
-        .total-score { 
-            font-weight: 900; 
-            color: var(--bg-black); 
-            background: var(--daft-red); 
-            font-size: 24px; 
-            box-shadow: 0 0 10px var(--daft-red);
+        .detail-val {
+            font-weight: bold;
+            color: var(--text-white);
         }
 
-        .rank-col { width: 70px; font-weight: 900; color: var(--daft-red); font-size: 22px; }
-        
-        .divider { border-left: 2px solid var(--daft-red); }
+        .active-row .details-box { display: block; }
+        .active-row { background: #1a1a1a !important; }
 
-        .status-bar { 
-            font-size: 14px; 
-            color: var(--daft-red); 
-            padding: 10px 25px; 
-            text-align: left; 
-            background: #000;
-            border-top: 2px solid var(--daft-red);
-            font-family: 'Courier New', monospace;
+        /* Ukrywanie elementów na desktopie, które są zbędne w gridzie */
+        .desktop-only { display: none; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Animacja migania kursora */
-        .status-bar::after {
-            content: '_';
-            animation: blink 1s infinite;
+        /* Responsywność dla Desktopu (jeśli chcesz pełną tabelę na szerokim ekranie) */
+        @media (min-width: 900px) {
+            .header-row, .player-row {
+                grid-template-columns: 60px 1fr repeat(10, 50px) 100px;
+            }
+            .desktop-only { display: block; }
+            .details-box { display: none !important; } /* Na dużym ekranie nie ma potrzeby rozwijać */
+            .player-row { cursor: default; }
+            .player-row:hover { background: rgba(255, 255, 255, 0.05); }
         }
-        @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
-
     </style>
 </head>
 <body>
 
 <div class="main-wrapper">
-    <div class="header-section"><h1>RANKING ESSPORT</h1></div>
-    <div class="table-container">
-        <table id="rankingTable">
-            <thead>
-                <tr>
-                    <th rowspan="2">POS</th><th rowspan="2" class="player-name">PLAYER_NAME</th>
-                    <th colspan="5">STAGES_RANK</th><th colspan="5" class="divider">POINTS</th>
-                    <th rowspan="2" class="divider">TOTAL</th>
-                </tr>
-                <tr>
-                    <th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th>
-                    <th class="divider">T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="13" style="padding:100px; color: var(--daft-red);">INITIALIZING_SYSTEM...</td></tr>
-            </tbody>
-        </table>
+    <h1>RANKING_ESSPORT_2026</h1>
+    
+    <div id="rankingList">
+        <div class="header-row">
+            <div>POS</div>
+            <div>PLAYER</div>
+            <div class="desktop-only">M1</div><div class="desktop-only">M2</div><div class="desktop-only">M3</div><div class="desktop-only">M4</div><div class="desktop-only">M5</div>
+            <div class="desktop-only">P1</div><div class="desktop-only">P2</div><div class="desktop-only">P3</div><div class="desktop-only">P4</div><div class="desktop-only">P5</div>
+            <div style="text-align:right">TOTAL</div>
+        </div>
+        <div id="tableBody">
+            </div>
     </div>
-    <div class="status-bar" id="status">STATUS: CONNECTING_TO_DATABASE</div>
 </div>
 
 <script>
@@ -159,27 +189,48 @@
                 const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
                 
                 if (cols[1] && cols[1] !== "") {
-                    const isTop24 = i <= 24 ? 'class="top24"' : '';
+                    const isTop24 = i <= 24 ? 'top24' : '';
                     
                     html += `
-                    <tr ${isTop24}>
-                        <td class="rank-col">${cols[0] || i}</td>
-                        <td class="player-name">${cols[1]}</td>
-                        <td>${cols[2] || '-'}</td><td>${cols[3] || '-'}</td><td>${cols[4] || '-'}</td><td>${cols[5] || '-'}</td><td>${cols[6] || '-'}</td>
-                        <td class="divider">${cols[7] || 0}</td><td>${cols[8] || 0}</td><td>${cols[9] || 0}</td><td>${cols[10] || 0}</td><td>${cols[11] || 0}</td>
-                        <td class="total-score divider">${cols[12] || 0}</td>
-                    </tr>`;
+                    <div class="player-wrapper">
+                        <div class="player-row ${isTop24}" onclick="toggleDetails(this)">
+                            <div class="rank-num">${cols[0] || i}</div>
+                            <div class="player-name">${cols[1]}</div>
+                            
+                            <div class="desktop-only">${cols[2] || '-'}</div><div class="desktop-only">${cols[3] || '-'}</div><div class="desktop-only">${cols[4] || '-'}</td>
+                            <div class="desktop-only">${cols[5] || '-'}</div><div class="desktop-only">${cols[6] || '-'}</div>
+                            <div class="desktop-only">${cols[7] || 0}</div><div class="desktop-only">${cols[8] || 0}</div><div class="desktop-only">${cols[9] || 0}</td>
+                            <div class="desktop-only">${cols[10] || 0}</div><div class="desktop-only">${cols[11] || 0}</div>
+
+                            <div class="total-score">${cols[12] || 0}</div>
+                            
+                            <div class="details-box">
+                                <div class="details-grid">
+                                    <div class="detail-item"><span class="detail-label">T1</span><span class="detail-val">${cols[2] || '-'} (${cols[7] || 0}pkt)</span></div>
+                                    <div class="detail-item"><span class="detail-label">T2</span><span class="detail-val">${cols[3] || '-'} (${cols[8] || 0}pkt)</span></div>
+                                    <div class="detail-item"><span class="detail-label">T3</span><span class="detail-val">${cols[4] || '-'} (${cols[9] || 0}pkt)</span></div>
+                                    <div class="detail-item"><span class="detail-label">T4</span><span class="detail-val">${cols[5] || '-'} (${cols[10] || 0}pkt)</span></div>
+                                    <div class="detail-item"><span class="detail-label">T5</span><span class="detail-val">${cols[6] || '-'} (${cols[11] || 0}pkt)</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
                 }
             }
             document.getElementById('tableBody').innerHTML = html;
-            document.getElementById('status').innerText = 'SYSTEM_UPDATE_SUCCESSFUL: ' + new Date().toLocaleTimeString();
         } catch (e) {
-            document.getElementById('status').innerText = 'ERROR: CONNECTION_FAILED';
+            console.error(e);
+        }
+    }
+
+    function toggleDetails(row) {
+        if (window.innerWidth < 900) {
+            row.classList.toggle('active-row');
         }
     }
 
     fetchRanking();
-    setInterval(fetchRanking, 30000);
+    setInterval(fetchRanking, 60000);
 </script>
 
 </body>
