@@ -3,15 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RANKING PUCHARU ESSPORT SEZON 2 🎯🎯🎯</title>
-
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="RANKING_ESSPORT_LIVE - Oficjalne Wyniki">
-    <meta property="og:description" content="Sprawdź aktualną klasyfikację sezonu. Kliknij w zawodnika, aby zobaczyć szczegóły jego występów!">
-    <meta property="og:image" content="https://zapodaj.net/images/9506974e638f8.jpg">
-    <meta property="og:url" content="https://abrzozowicz.github.io/PucharEssport/">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://zapodaj.net/images/9506974e638f8.jpg">
+    <title>RANKING PUCHARU ESSPORT SEZON 2 🎯</title>
 
     <style>
         :root {
@@ -50,11 +42,9 @@
 
         table { width: 100%; border-collapse: collapse; table-layout: auto; }
 
-        /* Nagłówki */
         .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.75rem; color: var(--accent-red); }
         .header-row th { padding: 15px 10px; border-bottom: 2px solid var(--accent-red); font-weight: 900; }
 
-        /* Wiersze */
         .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
         .player-row:nth-child(even) { background-color: var(--row-alt); }
         .player-row:active { background-color: #1a1a1a; }
@@ -67,8 +57,9 @@
             font-weight: 600; 
             color: #fff;
             font-size: 0.95rem;
-            line-height: 1.2;
         }
+
+        .player-name::after { content: ' ▾'; color: #444; font-size: 0.7rem; margin-left: 5px; }
 
         .total-score { 
             width: 70px;
@@ -79,33 +70,47 @@
             padding-right: 10px !important;
         }
 
-        /* Sekcja Detali (Rozwijana) */
-        .details-row { display: none; background-color: #080808; border-bottom: 1px solid var(--border-color); }
+        /* Sekcja Detali (Rozwijana Lista) */
+        .details-row { display: none; background-color: #080808; }
         .details-row.open { display: table-row; }
         
-        .details-container { 
-            padding: 15px; 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
+        .details-container { padding: 5px 15px 15px 15px; }
+
+        .details-list {
+            list-style: none;
+            margin: 0; padding: 0;
+            border-top: 1px solid #1a1a1a;
         }
 
-        .detail-card { 
-            background: #121212; 
-            padding: 10px; 
-            border-radius: 4px; 
-            border: 1px solid #222;
-            text-align: center;
+        .details-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 0.85rem;
         }
-        .detail-card span { display: block; font-size: 0.6rem; color: #666; text-transform: uppercase; margin-bottom: 4px; }
-        .detail-card b { font-size: 0.85rem; color: #eee; display: block; }
-        .detail-card i { display: block; font-size: 0.75rem; color: var(--accent-green); font-style: normal; margin-top: 4px; font-weight: bold; }
+
+        .details-list li:last-child { border-bottom: none; }
+
+        /* Styl dla wiersza SUMY w rozwinięciu */
+        .details-list li.summary-row {
+            margin-top: 5px;
+            border-top: 2px solid #222;
+            padding-top: 15px;
+        }
+
+        .turniej-label { color: #666; text-transform: uppercase; font-size: 0.7rem; font-weight: bold; width: 80px; }
+        .wynik-label { color: #eee; flex-grow: 1; text-align: left; padding-left: 10px; }
+        .pkt-label { color: var(--accent-green); font-weight: 900; font-family: monospace; }
+        
+        .summary-label { color: var(--accent-red); font-weight: 900; text-transform: uppercase; font-size: 0.8rem; }
+        .summary-total { color: var(--accent-red); font-weight: 900; font-size: 1.1rem; }
 
         .top24 { border-left: 4px solid var(--accent-green); }
         .top24 .player-name { color: var(--accent-green); }
 
         @media (min-width: 800px) {
-            .details-container { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
             h1 { font-size: 1.6rem; }
         }
     </style>
@@ -140,13 +145,14 @@
             const rows = text.split('\n').filter(line => line.trim() !== '');
             if (rows.length < 2) return;
 
-            const headerCols = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const separator = text.includes(';') ? ';' : ',';
+            const headerCols = rows[0].split(new RegExp(`${separator}(?=(?:(?:[^"]*"){2})*[^"]*$)`));
             const totalColsCount = headerCols.length;
             const tournamentCount = (totalColsCount - 3) / 2;
 
             let bodyHtml = '';
             for (let i = 1; i < rows.length; i++) {
-                const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
+                const cols = rows[i].split(new RegExp(`${separator}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(c => c.replace(/"/g, '').trim());
                 if (!cols[1]) continue;
 
                 const isTop24 = i <= 24 ? 'top24' : '';
@@ -162,20 +168,37 @@
                 </tr>
                 <tr class="details-row" id="details-${i}">
                     <td colspan="3">
-                        <div class="details-container">`;
+                        <div class="details-container">
+                            <ul class="details-list">`;
                 
+                let hasHistory = false;
                 for(let j = 0; j < tournamentCount; j++) {
                     const mce = cols[j+2] || '-';
-                    const pkt = cols[j+2+tournamentCount] || 0;
+                    const pkt = cols[j+2+tournamentCount] || '0';
+                    
+                    if (pkt !== '0' && pkt !== '') {
+                        hasHistory = true;
+                        bodyHtml += `
+                        <li>
+                            <span class="turniej-label">Turniej ${j+1}</span>
+                            <span class="wynik-label">Miejsce: <b>${mce}</b></span>
+                            <span class="pkt-label">+${pkt} PKT</span>
+                        </li>`;
+                    }
+                }
+
+                if (!hasHistory) {
+                    bodyHtml += `<li style="color:#444; justify-content:center;">Brak rozegranych turniejów</li>`;
+                } else {
+                    // Dodanie wiersza sumy na końcu listy
                     bodyHtml += `
-                        <div class="detail-card">
-                            <span>Turniej ${j+1}</span>
-                            <b>M-ce: ${mce}</b>
-                            <i>+${pkt} PKT</i>
-                        </div>`;
+                    <li class="summary-row">
+                        <span class="summary-label">Łączny Wynik</span>
+                        <span class="summary-total">${totalScore} PKT</span>
+                    </li>`;
                 }
                 
-                bodyHtml += `</div></td></tr>`;
+                bodyHtml += `</ul></div></td></tr>`;
             }
             document.getElementById('tableBody').innerHTML = bodyHtml;
 
