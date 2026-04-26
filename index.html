@@ -1,26 +1,17 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="description" content="Oficjalny ranking 2. sezonu Pucharu Essport">
-<meta name="author" content="Puchar Essport 2.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Oficjalny ranking 2. sezonu Pucharu Essport">
+    <meta name="author" content="Puchar Essport 2.0">
 
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://abrzozowicz.github.io/PucharEssport/">
-<meta property="og:title" content="RANKING PUCHARU ESSPORT SEZON 2 🎯">
-<meta property="og:description" content="Sprawdź aktualne punkty i miejsca w rankingu.">
-<meta property="og:image" content="https://raw.githubusercontent.com/abrzozowicz/PucharEssport/main/paint.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://abrzozowicz.github.io/PucharEssport/">
+    <meta property="og:title" content="RANKING PUCHARU ESSPORT SEZON 2 🎯">
+    <meta property="og:description" content="Sprawdź aktualne punkty i miejsca w rankingu.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/abrzozowicz/PucharEssport/main/paint.jpg">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://abrzozowicz.github.io/PucharEssport/">
-<meta name="twitter:title" content="RANKING PUCHARU ESSPORT SEZON 2 🎯">
-<meta name="twitter:description" content="Oficjalna tabela wyników Pucharu Essport 2.0.">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/abrzozowicz/PucharEssport/main/paint.jpg">
-
-    
     <title>RANKING PUCHARU ESSPORT SEZON 2 🎯</title>
 
     <style>
@@ -88,10 +79,8 @@
             padding-right: 10px !important;
         }
 
-        /* Sekcja Detali (Rozwijana Lista) */
         .details-row { display: none; background-color: #080808; }
         .details-row.open { display: table-row; }
-        
         .details-container { padding: 5px 15px 15px 15px; }
 
         .details-list {
@@ -109,19 +98,22 @@
             font-size: 0.85rem;
         }
 
-        .details-list li:last-child { border-bottom: none; }
-
-        /* Styl dla wiersza SUMY w rozwinięciu */
-        .details-list li.summary-row {
-            margin-top: 5px;
-            border-top: 2px solid #222;
-            padding-top: 15px;
+        .details-list li.ignored-result {
+            opacity: 0.4;
+            text-decoration: line-through;
+            background: rgba(255, 0, 0, 0.02);
         }
 
         .turniej-label { color: #666; text-transform: uppercase; font-size: 0.7rem; font-weight: bold; width: 80px; }
         .wynik-label { color: #eee; flex-grow: 1; text-align: left; padding-left: 10px; }
         .pkt-label { color: var(--accent-green); font-weight: 900; font-family: monospace; }
         
+        .summary-row {
+            margin-top: 5px;
+            border-top: 2px solid #222;
+            padding-top: 15px !important;
+        }
+
         .summary-label { color: var(--accent-red); font-weight: 900; text-transform: uppercase; font-size: 0.8rem; }
         .summary-total { color: var(--accent-red); font-weight: 900; font-size: 1.1rem; }
 
@@ -136,14 +128,14 @@
 <body>
 
 <div class="main-wrapper">
-    <h1>RANKING PUCHARU ESSPORT SEZON 2 🎯🎯🎯🎯🎯</h1>
+    <h1>RANKING PUCHARU ESSPORT SEZON 2 🎯</h1>
     <div class="ranking-table-container">
         <table id="dynamicTable">
             <thead>
                 <tr class="header-row">
                     <th class="col-lp">#</th>
                     <th style="text-align:left; padding-left:10px;">ZAWODNIK</th>
-                    <th class="total-score">SUMA</th>
+                    <th class="total-score">SUMA (5)</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -173,16 +165,30 @@
                 const cols = rows[i].split(new RegExp(`${separator}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(c => c.replace(/"/g, '').trim());
                 if (!cols[1]) continue;
 
+                // 1. Zbieranie wszystkich punktów zawodnika
+                let playerPoints = [];
+                for(let j = 0; j < tournamentCount; j++) {
+                    const val = parseFloat(cols[j + 2 + tournamentCount]) || 0;
+                    if (val > 0) playerPoints.push(val);
+                }
+
+                // 2. Obliczanie Top 5
+                const sortedPoints = [...playerPoints].sort((a, b) => b - a);
+                const top5Threshold = sortedPoints.length > 5 ? sortedPoints[4] : 0;
+                
+                // Uwaga: Obsługa przypadku, gdy ktoś ma kilka takich samych wyników na granicy top 5
+                let countedCount = 0;
+                const calculatedTotal = sortedPoints.slice(0, 5).reduce((a, b) => a + b, 0);
+
                 const isTop24 = i <= 24 ? 'top24' : '';
                 const lp = cols[0] || i;
                 const name = cols[1];
-                const totalScore = cols[totalColsCount - 1];
 
                 bodyHtml += `
                 <tr class="player-row ${isTop24}" onclick="toggleDetails(${i})">
                     <td class="col-lp">${lp}</td>
                     <td class="player-name">${name}</td>
-                    <td class="total-score">${totalScore}</td>
+                    <td class="total-score">${calculatedTotal}</td>
                 </tr>
                 <tr class="details-row" id="details-${i}">
                     <td colspan="3">
@@ -190,17 +196,32 @@
                             <ul class="details-list">`;
                 
                 let hasHistory = false;
+                // Kopia punktów do oznaczania użytych w Top 5
+                let pointsForCheck = [...sortedPoints].slice(0, 5);
+
                 for(let j = 0; j < tournamentCount; j++) {
                     const mce = cols[j+2] || '-';
-                    const pkt = cols[j+2+tournamentCount] || '0';
+                    const pktVal = parseFloat(cols[j+2+tournamentCount]) || 0;
                     
-                    if (pkt !== '0' && pkt !== '') {
+                    if (pktVal > 0) {
                         hasHistory = true;
+                        
+                        // Sprawdzamy czy dany wynik mieści się w Top 5
+                        let isUsed = false;
+                        const matchIndex = pointsForCheck.indexOf(pktVal);
+                        if (matchIndex !== -1) {
+                            isUsed = true;
+                            pointsForCheck.splice(matchIndex, 1); // Usuwamy, by nie liczyć dwa razy tej samej wartości
+                        }
+
+                        const rowClass = isUsed ? '' : 'ignored-result';
+                        const labelExtra = isUsed ? '' : ' <small style="color:var(--accent-red)">(odrzucony)</small>';
+
                         bodyHtml += `
-                        <li>
+                        <li class="${rowClass}">
                             <span class="turniej-label">Turniej ${j+1}</span>
-                            <span class="wynik-label">Miejsce: <b>${mce}</b></span>
-                            <span class="pkt-label">+${pkt} PKT</span>
+                            <span class="wynik-label">Miejsce: <b>${mce}</b>${labelExtra}</span>
+                            <span class="pkt-label">+${pktVal} PKT</span>
                         </li>`;
                     }
                 }
@@ -208,11 +229,10 @@
                 if (!hasHistory) {
                     bodyHtml += `<li style="color:#444; justify-content:center;">Brak rozegranych turniejów</li>`;
                 } else {
-                    // Dodanie wiersza sumy na końcu listy
                     bodyHtml += `
                     <li class="summary-row">
-                        <span class="summary-label">Łączny Wynik</span>
-                        <span class="summary-total">${totalScore} PKT</span>
+                        <span class="summary-label">Suma (Najlepsze 5)</span>
+                        <span class="summary-total">${calculatedTotal} PKT</span>
                     </li>`;
                 }
                 
