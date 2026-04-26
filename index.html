@@ -8,7 +8,7 @@
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://abrzozowicz.github.io/PucharEssport/">
-    <meta property="og:title" content="RANKING PUCHARU ESSPORT SEZON 2 Po 6 Turniejach 🎯">
+    <meta property="og:title" content="RANKING PUCHARU ESSPORT SEZON 2 🎯">
     <meta property="og:description" content="Sprawdź aktualne punkty i miejsca w rankingu.">
     <meta property="og:image" content="https://raw.githubusercontent.com/abrzozowicz/PucharEssport/main/paint.jpg">
 
@@ -51,18 +51,23 @@
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.65rem; color: var(--accent-red); }
-        .header-row th { padding: 15px 5px; border-bottom: 2px solid var(--accent-red); font-weight: 900; }
+        .header-row { background-color: var(--header-bg); text-transform: uppercase; color: var(--accent-red); }
+        .header-row th { 
+            padding: 15px 5px; 
+            border-bottom: 2px solid var(--accent-red); 
+            font-weight: 900; 
+            font-size: 0.6rem; /* Mniejszy tekst dla długich nagłówków na mobile */
+        }
 
         .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
         .player-row:nth-child(even) { background-color: var(--row-alt); }
         .player-row:active { background-color: #1a1a1a; }
 
         /* Szerokości kolumn */
-        .col-lp { width: 35px; color: #555; text-align: center; font-weight: bold; font-size: 0.8rem; }
+        .col-lp { width: 30px; color: #555; text-align: center; font-weight: bold; font-size: 0.8rem; }
         .col-name { text-align: left !important; padding-left: 10px !important; }
-        .col-games { width: 35px; text-align: center !important; color: #888; font-weight: bold; font-size: 0.9rem; }
-        .col-score { width: 75px; text-align: center !important; padding-right: 5px !important; }
+        .col-games { width: 80px; text-align: center !important; color: #888; font-weight: bold; font-size: 0.9rem; }
+        .col-score { width: 85px; text-align: center !important; padding-right: 5px !important; }
 
         .player-name { 
             font-weight: 600; 
@@ -103,7 +108,6 @@
         .details-list li.ignored-result {
             opacity: 0.35;
             text-decoration: line-through;
-            background: rgba(255, 0, 0, 0.01);
         }
 
         .turniej-label { color: #666; text-transform: uppercase; font-size: 0.7rem; font-weight: bold; width: 80px; }
@@ -124,9 +128,10 @@
 
         @media (min-width: 800px) {
             h1 { font-size: 1.6rem; }
-            .header-row { font-size: 0.75rem; }
-            .col-games { width: 50px; }
-            .col-score { width: 100px; }
+            .header-row th { font-size: 0.75rem; }
+            .col-lp { width: 40px; }
+            .col-games { width: 150px; }
+            .col-score { width: 120px; }
         }
     </style>
 </head>
@@ -140,7 +145,7 @@
                 <tr class="header-row">
                     <th class="col-lp">#</th>
                     <th class="col-name">ZAWODNIK</th>
-                    <th class="col-games">Liczba turniejów</th>
+                    <th class="col-games">LICZBA TURNIEJÓW</th>
                     <th class="col-score">SUMA (5)</th>
                 </tr>
             </thead>
@@ -171,16 +176,13 @@
                 const cols = rows[i].split(new RegExp(`${separator}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(c => c.replace(/"/g, '').trim());
                 if (!cols[1]) continue;
 
-                // 1. Zbieranie punktów i liczenie występów
                 let playerPoints = [];
                 for(let j = 0; j < tournamentCount; j++) {
                     const val = parseFloat(cols[j + 2 + tournamentCount]) || 0;
                     if (val > 0) playerPoints.push(val);
                 }
 
-                const gamesPlayed = playerPoints.length; // Ilość turniejów
-
-                // 2. Obliczanie Top 5
+                const gamesPlayed = playerPoints.length;
                 const sortedPoints = [...playerPoints].sort((a, b) => b - a);
                 const calculatedTotal = sortedPoints.slice(0, 5).reduce((a, b) => a + b, 0);
 
@@ -209,7 +211,6 @@
                     
                     if (pktVal > 0) {
                         hasHistory = true;
-                        
                         let isUsed = false;
                         const matchIndex = pointsForCheck.indexOf(pktVal);
                         if (matchIndex !== -1) {
