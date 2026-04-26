@@ -8,7 +8,7 @@
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://abrzozowicz.github.io/PucharEssport/">
-    <meta property="og:title" content="RANKING PUCHARU ESSPORT SEZON 2 🎯">
+    <meta property="og:title" content="RANKING PUCHARU ESSPORT SEZON 2 Po 6 Turniejach 🎯">
     <meta property="og:description" content="Sprawdź aktualne punkty i miejsca w rankingu.">
     <meta property="og:image" content="https://raw.githubusercontent.com/abrzozowicz/PucharEssport/main/paint.jpg">
 
@@ -49,34 +49,36 @@
             overflow: hidden;
         }
 
-        table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.75rem; color: var(--accent-red); }
-        .header-row th { padding: 15px 10px; border-bottom: 2px solid var(--accent-red); font-weight: 900; }
+        .header-row { background-color: var(--header-bg); text-transform: uppercase; font-size: 0.65rem; color: var(--accent-red); }
+        .header-row th { padding: 15px 5px; border-bottom: 2px solid var(--accent-red); font-weight: 900; }
 
         .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
         .player-row:nth-child(even) { background-color: var(--row-alt); }
         .player-row:active { background-color: #1a1a1a; }
 
-        .col-lp { width: 40px; color: #555; text-align: center; font-weight: bold; font-size: 0.8rem; }
-        
+        /* Szerokości kolumn */
+        .col-lp { width: 35px; color: #555; text-align: center; font-weight: bold; font-size: 0.8rem; }
+        .col-name { text-align: left !important; padding-left: 10px !important; }
+        .col-games { width: 35px; text-align: center !important; color: #888; font-weight: bold; font-size: 0.9rem; }
+        .col-score { width: 75px; text-align: center !important; padding-right: 5px !important; }
+
         .player-name { 
-            text-align: left !important; 
-            padding: 15px 10px !important; 
             font-weight: 600; 
             color: #fff;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .player-name::after { content: ' ▾'; color: #444; font-size: 0.7rem; margin-left: 5px; }
+        .player-name::after { content: ' ▾'; color: #444; font-size: 0.7rem; margin-left: 3px; }
 
         .total-score { 
-            width: 70px;
             font-weight: 900; 
             color: var(--accent-red); 
-            font-size: 1.2rem; 
-            text-align: center !important;
-            padding-right: 10px !important;
+            font-size: 1.1rem; 
         }
 
         .details-row { display: none; background-color: #080808; }
@@ -99,9 +101,9 @@
         }
 
         .details-list li.ignored-result {
-            opacity: 0.4;
+            opacity: 0.35;
             text-decoration: line-through;
-            background: rgba(255, 0, 0, 0.02);
+            background: rgba(255, 0, 0, 0.01);
         }
 
         .turniej-label { color: #666; text-transform: uppercase; font-size: 0.7rem; font-weight: bold; width: 80px; }
@@ -122,6 +124,9 @@
 
         @media (min-width: 800px) {
             h1 { font-size: 1.6rem; }
+            .header-row { font-size: 0.75rem; }
+            .col-games { width: 50px; }
+            .col-score { width: 100px; }
         }
     </style>
 </head>
@@ -134,12 +139,13 @@
             <thead>
                 <tr class="header-row">
                     <th class="col-lp">#</th>
-                    <th style="text-align:left; padding-left:10px;">ZAWODNIK</th>
-                    <th class="total-score">SUMA (5)</th>
+                    <th class="col-name">ZAWODNIK</th>
+                    <th class="col-games">G</th>
+                    <th class="col-score">SUMA (5)</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="3" style="padding:50px; text-align:center; color:#444;">ŁADOWANIE_DANYCH...</td></tr>
+                <tr><td colspan="4" style="padding:50px; text-align:center; color:#444;">ŁADOWANIE_DANYCH...</td></tr>
             </tbody>
         </table>
     </div>
@@ -165,19 +171,17 @@
                 const cols = rows[i].split(new RegExp(`${separator}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(c => c.replace(/"/g, '').trim());
                 if (!cols[1]) continue;
 
-                // 1. Zbieranie wszystkich punktów zawodnika
+                // 1. Zbieranie punktów i liczenie występów
                 let playerPoints = [];
                 for(let j = 0; j < tournamentCount; j++) {
                     const val = parseFloat(cols[j + 2 + tournamentCount]) || 0;
                     if (val > 0) playerPoints.push(val);
                 }
 
+                const gamesPlayed = playerPoints.length; // Ilość turniejów
+
                 // 2. Obliczanie Top 5
                 const sortedPoints = [...playerPoints].sort((a, b) => b - a);
-                const top5Threshold = sortedPoints.length > 5 ? sortedPoints[4] : 0;
-                
-                // Uwaga: Obsługa przypadku, gdy ktoś ma kilka takich samych wyników na granicy top 5
-                let countedCount = 0;
                 const calculatedTotal = sortedPoints.slice(0, 5).reduce((a, b) => a + b, 0);
 
                 const isTop24 = i <= 24 ? 'top24' : '';
@@ -187,16 +191,16 @@
                 bodyHtml += `
                 <tr class="player-row ${isTop24}" onclick="toggleDetails(${i})">
                     <td class="col-lp">${lp}</td>
-                    <td class="player-name">${name}</td>
-                    <td class="total-score">${calculatedTotal}</td>
+                    <td class="player-name col-name">${name}</td>
+                    <td class="col-games">${gamesPlayed}</td>
+                    <td class="total-score col-score">${calculatedTotal}</td>
                 </tr>
                 <tr class="details-row" id="details-${i}">
-                    <td colspan="3">
+                    <td colspan="4">
                         <div class="details-container">
                             <ul class="details-list">`;
                 
                 let hasHistory = false;
-                // Kopia punktów do oznaczania użytych w Top 5
                 let pointsForCheck = [...sortedPoints].slice(0, 5);
 
                 for(let j = 0; j < tournamentCount; j++) {
@@ -206,12 +210,11 @@
                     if (pktVal > 0) {
                         hasHistory = true;
                         
-                        // Sprawdzamy czy dany wynik mieści się w Top 5
                         let isUsed = false;
                         const matchIndex = pointsForCheck.indexOf(pktVal);
                         if (matchIndex !== -1) {
                             isUsed = true;
-                            pointsForCheck.splice(matchIndex, 1); // Usuwamy, by nie liczyć dwa razy tej samej wartości
+                            pointsForCheck.splice(matchIndex, 1);
                         }
 
                         const rowClass = isUsed ? '' : 'ignored-result';
@@ -231,7 +234,7 @@
                 } else {
                     bodyHtml += `
                     <li class="summary-row">
-                        <span class="summary-label">Suma (Najlepsze 5)</span>
+                        <span class="summary-label">Suma (Najlepsze 5 z ${gamesPlayed})</span>
                         <span class="summary-total">${calculatedTotal} PKT</span>
                     </li>`;
                 }
@@ -242,7 +245,7 @@
 
         } catch (e) { 
             console.error("Błąd ładowania:", e); 
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="3" style="padding:20px;">BŁĄD_SYNCHRONIZACJI</td></tr>';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" style="padding:20px;">BŁĄD_SYNCHRONIZACJI</td></tr>';
         }
     }
 
