@@ -66,20 +66,21 @@
 
         /* Szerokości kolumn */
         .col-lp { width: 30px; color: #555; text-align: center; font-weight: bold; font-size: 0.8rem; }
-        .col-name { text-align: left !important; padding-left: 10px !important; }
-        .col-games { width: 80px; text-align: center !important; color: #888; font-weight: bold; font-size: 0.9rem; }
-        .col-score { width: 85px; text-align: center !important; padding-right: 5px !important; }
+        .col-name { text-align: left !important; padding-left: 10px !important; padding-top: 12px !important; padding-bottom: 12px !important; }
+        .col-games { width: 65px; text-align: center !important; color: #888; font-weight: bold; font-size: 0.9rem; }
+        .col-score { width: 75px; text-align: center !important; padding-right: 5px !important; }
 
+        /* POPRAWKA: Usunięcie zwijania tekstu, pozwolenie na wyższe wiersze */
         .player-name { 
             font-weight: 600; 
             color: #fff;
             font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal; /* Pozwala na zawijanie tekstu w komórce */
+            word-break: break-word; /* W razie długich nazwisk */
         }
 
-        .player-name::after { content: ' ▾'; color: #444; font-size: 0.7rem; margin-left: 3px; }
+        /* Strzałka rozwijania menu – teraz reaguje poprawnie przy łamaniu linii */
+        .player-name::after { content: ' ▾'; color: #444; font-size: 0.7rem; margin-left: 3px; display: inline-block; }
 
         .total-score { 
             font-weight: 900; 
@@ -130,17 +131,21 @@
 
         .top8 { border-left: 4px solid var(--accent-gold); }
         .top8 .player-name { color: var(--accent-gold); font-weight: 800; }
+        
+        /* POPRAWKA: Badge rozstawienia lepiej zachowuje się na smartfonach */
         .seed-badge {
             color: var(--accent-gold);
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 900;
             letter-spacing: 1px;
-            margin-left: 6px;
+            margin-left: 4px;
             border: 1px solid var(--accent-gold);
             padding: 1px 4px;
             border-radius: 3px;
             text-transform: uppercase;
             vertical-align: middle;
+            display: inline-block; /* Zapobiega brzydkiemu rozciąganiu */
+            margin-top: 4px; /* Daje lekki odstęp, jeśli spadnie do nowej linii */
         }
 
         @media (min-width: 800px) {
@@ -149,6 +154,7 @@
             .col-lp { width: 40px; }
             .col-games { width: 150px; }
             .col-score { width: 120px; }
+            .seed-badge { margin-top: 0; margin-left: 6px; font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -241,7 +247,7 @@
 
                 if (currentRank <= 8) {
                     rankClass = 'top8';
-                    badgeHtml = '<span class="seed-badge">👑 Rozstawienie</span>';
+                    badgeHtml = ' <span class="seed-badge">👑 Rozstawienie</span>';
                 } else if (currentRank <= 24) {
                     rankClass = 'top24';
                 }
