@@ -12,7 +12,7 @@
     <meta property="og:description" content="Sprawdź aktualne punkty i miejsca w rankingu.">
     <meta property="og:image" content="https://raw.githubusercontent.com/abrzozowicz/PucharEssport/main/paint.jpg">
 
-    <title>RANKING PUCHARU ESSPORT SEZON 2 Tabela po 6 Turniejach🎯</title>
+    <title>RANKING PUCHARU ESSPORT SEZON 2 Tabela po 7 Turniejach🎯</title>
 
     <style>
         :root {
@@ -21,6 +21,7 @@
             --text-color: #e0e0e0;
             --accent-green: #00ff41;
             --accent-red: #ff0000;
+            --accent-gold: #ffd700; /* Nowy kolor dla TOP 8 */
             --border-color: #222;
             --row-alt: rgba(255, 255, 255, 0.02);
         }
@@ -56,7 +57,7 @@
             padding: 15px 5px; 
             border-bottom: 2px solid var(--accent-red); 
             font-weight: 900; 
-            font-size: 0.6rem; /* Mniejszy tekst dla długich nagłówków na mobile */
+            font-size: 0.6rem;
         }
 
         .player-row { cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
@@ -123,8 +124,24 @@
         .summary-label { color: var(--accent-red); font-weight: 900; text-transform: uppercase; font-size: 0.8rem; }
         .summary-total { color: var(--accent-red); font-weight: 900; font-size: 1.1rem; }
 
+        /* Style dla TOP 24 i nowej Złotej Ósemki (TOP 8) */
         .top24 { border-left: 4px solid var(--accent-green); }
         .top24 .player-name { color: var(--accent-green); }
+
+        .top8 { border-left: 4px solid var(--accent-gold); }
+        .top8 .player-name { color: var(--accent-gold); font-weight: 800; }
+        .seed-badge {
+            color: var(--accent-gold);
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-left: 6px;
+            border: 1px solid var(--accent-gold);
+            padding: 1px 4px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
 
         @media (min-width: 800px) {
             h1 { font-size: 1.6rem; }
@@ -171,7 +188,9 @@
             const totalColsCount = headerCols.length;
             const tournamentCount = (totalColsCount - 3) / 2;
 
-            let bodyHtml = '';
+            // 1. Zbieramy wszystkich zawodników do tymczasowej tablicy obiektów
+            let playersList = [];
+
             for (let i = 1; i < rows.length; i++) {
                 const cols = rows[i].split(new RegExp(`${separator}(?=(?:(?:[^"]*"){2})*[^"]*$)`)).map(c => c.replace(/"/g, '').trim());
                 if (!cols[1]) continue;
@@ -186,28 +205,65 @@
                 const sortedPoints = [...playerPoints].sort((a, b) => b - a);
                 const calculatedTotal = sortedPoints.slice(0, 5).reduce((a, b) => a + b, 0);
 
-                const isTop24 = i <= 24 ? 'top24' : '';
-                const lp = cols[0] || i;
-                const name = cols[1];
+                playersList.push({
+                    id: i, // potrzebne do toggleDetails
+                    name: cols[1],
+                    gamesPlayed: gamesPlayed,
+                    calculatedTotal: calculatedTotal,
+                    sortedPoints: sortedPoints,
+                    rawCols: cols // zachowujemy surowe kolumny do wygenerowania historii
+                });
+            }
+
+            // 2. NOWE SORTOWANIE ZGODNIE Z TWOIMI ZASADAMI:
+            // - Jeśli ktoś ma mniej niż 4 turnieje, spada na koniec listy.
+            // - W obrębie swoich grup decyduje suma punktów (malejąco).
+            playersList.sort((a, b) => {
+                const aHasMin4 = a.gamesPlayed >= 4;
+                const bHasMin4 = b.gamesPlayed >= 4;
+
+                if (aHasMin4 && !bHasMin4) return -1; // a wyżej
+                if (!aHasMin4 && bHasMin4) return 1;  // b wyżej
+                
+                // Jeśli obaj mają >= 4 LUB obaj mają < 4, decydują punkty
+                return b.calculatedTotal - a.calculatedTotal;
+            });
+
+            // 3. Generujemy kod HTML na podstawie posortowanej listy
+            let bodyHtml = '';
+            
+            playersList.forEach((player, index) => {
+                const currentRank = index + 1; // Nowa, rzeczywista pozycja w rankingu
+                
+                // Przypisywanie klas i wyróżnień na podstawie ostatecznej pozycji
+                let rankClass = '';
+                let badgeHtml = '';
+
+                if (currentRank <= 8) {
+                    rankClass = 'top8';
+                    badgeHtml = '<span class="seed-badge">👑 Rozstawienie</span>';
+                } else if (currentRank <= 24) {
+                    rankClass = 'top24';
+                }
 
                 bodyHtml += `
-                <tr class="player-row ${isTop24}" onclick="toggleDetails(${i})">
-                    <td class="col-lp">${lp}</td>
-                    <td class="player-name col-name">${name}</td>
-                    <td class="col-games">${gamesPlayed}</td>
-                    <td class="total-score col-score">${calculatedTotal}</td>
+                <tr class="player-row ${rankClass}" onclick="toggleDetails(${player.id})">
+                    <td class="col-lp">${currentRank}</td>
+                    <td class="player-name col-name">${player.name}${badgeHtml}</td>
+                    <td class="col-games">${player.gamesPlayed}</td>
+                    <td class="total-score col-score">${player.calculatedTotal}</td>
                 </tr>
-                <tr class="details-row" id="details-${i}">
+                <tr class="details-row" id="details-${player.id}">
                     <td colspan="4">
                         <div class="details-container">
                             <ul class="details-list">`;
                 
                 let hasHistory = false;
-                let pointsForCheck = [...sortedPoints].slice(0, 5);
+                let pointsForCheck = [...player.sortedPoints].slice(0, 5);
 
                 for(let j = 0; j < tournamentCount; j++) {
-                    const mce = cols[j+2] || '-';
-                    const pktVal = parseFloat(cols[j+2+tournamentCount]) || 0;
+                    const mce = player.rawCols[j+2] || '-';
+                    const pktVal = parseFloat(player.rawCols[j+2+tournamentCount]) || 0;
                     
                     if (pktVal > 0) {
                         hasHistory = true;
@@ -235,13 +291,14 @@
                 } else {
                     bodyHtml += `
                     <li class="summary-row">
-                        <span class="summary-label">Suma (Najlepsze 5 z ${gamesPlayed})</span>
-                        <span class="summary-total">${calculatedTotal} PKT</span>
+                        <span class="summary-label">Suma (Najlepsze 5 z ${player.gamesPlayed})</span>
+                        <span class="summary-total">${player.calculatedTotal} PKT</span>
                     </li>`;
                 }
                 
                 bodyHtml += `</ul></div></td></tr>`;
-            }
+            });
+
             document.getElementById('tableBody').innerHTML = bodyHtml;
 
         } catch (e) { 
