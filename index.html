@@ -221,9 +221,7 @@
                 });
             }
 
-            // 2. NOWE SORTOWANIE ZGODNIE Z TWOIMI ZASADAMI:
-            // - Jeśli ktoś ma mniej niż 4 turnieje, spada na koniec listy.
-            // - W obrębie swoich grup decyduje suma punktów (malejąco).
+            // 2. NOWE SORTOWANIE ZGODNIE Z TWOIMI ZASADAMI (Z ROZSTRZYGANIEM REMISÓW):
             playersList.sort((a, b) => {
                 const aHasMin4 = a.gamesPlayed >= 4;
                 const bHasMin4 = b.gamesPlayed >= 4;
@@ -231,8 +229,23 @@
                 if (aHasMin4 && !bHasMin4) return -1; // a wyżej
                 if (!aHasMin4 && bHasMin4) return 1;  // b wyżej
                 
-                // Jeśli obaj mają >= 4 LUB obaj mają < 4, decydują punkty
-                return b.calculatedTotal - a.calculatedTotal;
+                // Jeśli obaj mają tę samą sytuację frekwencyjną, sprawdzamy główną sumę 5 najlepszych
+                if (b.calculatedTotal !== a.calculatedTotal) {
+                    return b.calculatedTotal - a.calculatedTotal;
+                }
+
+                // REMIS GŁÓWNEJ SUMY: Porównujemy po kolei najwyższe pojedyncze osiągnięcia
+                const maxLength = Math.max(a.sortedPoints.length, b.sortedPoints.length);
+                for (let k = 0; k < maxLength; k++) {
+                    const scoreA = a.sortedPoints[k] || 0; // 0, jeśli gracz rozegrał mniej turniejów niż indeks k
+                    const scoreB = b.sortedPoints[k] || 0;
+
+                    if (scoreB !== scoreA) {
+                        return scoreB - scoreA; // Wyższy pojedynczy wynik daje wyższą pozycję
+                    }
+                }
+
+                return 0; // Absolutny remis wszystkich wyników
             });
 
             // 3. Generujemy kod HTML na podstawie posortowanej listy
